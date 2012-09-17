@@ -389,6 +389,15 @@ class AdditionalPage(TimestampMixin, Stageable, Sortable, Deletable, models.Mode
     class Meta:
         db_table = u'c2g_additional_pages'
 
+class AdditionalPageVisitLog(TimestampMixin, models.Model):
+    course = models.ForeignKey(Course, db_index=True)
+    additional_page = models.ForeignKey(AdditionalPage, db_index=True)
+    user = models.ForeignKey(User)
+    
+    class Meta:
+        db_table = u'c2g_additional_page_visit_log'
+        
+        
 class FileManager(models.Manager):
     def getByCourse(self, course):
         if course.mode == 'draft':
@@ -763,6 +772,23 @@ class Video(TimestampMixin, Stageable, Sortable, Deletable, models.Model):
     class Meta:
         db_table = u'c2g_videos'
 
+class VideoVisitLog(TimestampMixin, models.Model):
+    course = models.ForeignKey(Course, db_index=True)
+    video = models.ForeignKey(Video, db_index=True)
+    user = models.ForeignKey(User)
+    
+    class Meta:
+        db_table = u'c2g_video_visit_log'
+        
+class VideoViewTraces(TimestampMixin, models.Model):
+    course = models.ForeignKey(Course, db_index=True)
+    video = models.ForeignKey(Video, db_index=True)
+    user = models.ForeignKey(User)
+    trace = models.TextField(blank=True)
+    
+    class Meta:
+        db_table = u'c2g_video_view_traces'
+        
 class VideoActivity(models.Model):
      student = models.ForeignKey(User)
      course = models.ForeignKey(Course)
@@ -1072,6 +1098,14 @@ class ProblemSet(TimestampMixin, Stageable, Sortable, Deletable, models.Model):
     class Meta:
         db_table = u'c2g_problem_sets'
 
+class ProblemSetVisitLog(TimestampMixin, models.Model):
+    course = models.ForeignKey(Course, db_index=True)
+    problemset = models.ForeignKey(ProblemSet, db_index=True)
+    user = models.ForeignKey(User)
+    
+    class Meta:
+        db_table = u'c2g_problemset_visit_log'
+        
 class Exercise(TimestampMixin, Deletable, models.Model):
     problemSet = models.ManyToManyField(ProblemSet, through='ProblemSetToExercise')
     video = models.ManyToManyField(Video, through='VideoToExercise')
@@ -1155,6 +1189,21 @@ class NewsEvent(models.Model):
     class Meta:
         db_table = u'c2g_news_events'
 
+class ForumVisitLog(TimestampMixin, models.Model):
+    course = models.ForeignKey(Course, db_index=True)
+    user = models.ForeignKey(User)
+    
+    class Meta:
+        db_table = u'c2g_forum_visit_log'
+        
+class FileDownloadLog(TimestampMixin, models.Model):
+    course = models.ForeignKey(Course, db_index=True)
+    file = models.ForeignKey(File, db_index=True)
+    user = models.ForeignKey(User)
+    
+    class Meta:
+        db_table = u'c2g_file_download_log'
+        
 #Should probably slate this EditProfileForm for moving to a different file
 class EditProfileForm(forms.Form):
     first_name = forms.CharField(max_length=30)
