@@ -55,7 +55,15 @@ def view(request, course_prefix, course_suffix, slug):
         video = Video.objects.get(course=common_page_data['course'], slug=slug)
     except Video.DoesNotExist:
         raise Http404
-
+    
+    if not common_page_data['is_course_admin']:
+        visit_log = VideoVisitLog(
+            course = course,
+            video = video,
+            user = request.user
+        )
+        visit_log.save()
+        
     video_rec = request.user.videoactivity_set.filter(video=video)
     if video_rec:
         video_rec = video_rec[0]

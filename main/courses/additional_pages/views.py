@@ -41,6 +41,14 @@ def main(request, course_prefix, course_suffix, slug):
     except:
         raise Http404
     
+    if not common_page_data['is_course_admin']:
+        visit_log = AdditionalPageVisitLog(
+            course = course,
+            additional_page = page,
+            user = request.user
+        )
+        visit_log.save()
+        
     if common_page_data['is_course_admin'] and common_page_data['course_mode'] == 'draft' and common_page_data['view_mode'] == 'edit':
         template = 'additional_pages/edit.html'
     else:

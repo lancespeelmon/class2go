@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError, make_option
 from c2g.models import *
 from django.contrib.auth.models import User,Group
+import time
 from datetime import datetime
 from random import randrange, shuffle
 from django.db import connection, transaction
@@ -60,6 +61,10 @@ def delete_db_data():
     ProblemActivity.objects.all().delete()
     NewsEvent.objects.all().delete()
 
+    AdditionalPageVisitLog.objects.all().delete()
+    ProblemSetVisitLog.objects.all().delete()
+    VideoVisitLog.objects.all().delete()
+    
     Group.objects.all().delete()
     User.objects.all().delete()
 
@@ -391,6 +396,10 @@ def create_course_massive(index, users, institutions, content_counts):
                     view_activity = VideoActivity(student = student, video = video.image, course = course.image, start_seconds = randrange(0,durations[yt_index]))
                     view_activity.save()
                     
+                    create_video_view_log_entry(video=prod, user=student)
+                    if randrange(0,4) > 3:
+                        create_video_view_log_entry(video=prod, user=student)
+                    
                     for k in range(len(v2es)):
                         if v2es[k].video_time < view_activity.start_seconds:
                             problem_activity = ProblemActivity(
@@ -402,7 +411,8 @@ def create_course_massive(index, users, institutions, content_counts):
                 stud_index += 1
                 if num_students > 500 and stud_index%500 == 0:
                     print "      Creating massive course %d of %d >>  Adding content section %d of %d >> Adding Video %d of 5 >> Adding student video activity (%d/%d)\r" % (index,content_counts['num_massive_courses'], i, content_counts['num_sections_per_course'], j, stud_index, num_students)
-                            
+        
+            
         # Create 1 static page
         print "      Creating massive course %d of %d >>  Adding content section %d of %d >> Adding 1 static page\r" % (index,content_counts['num_massive_courses'], i, content_counts['num_sections_per_course'])
         str_ = ""
@@ -421,6 +431,11 @@ def create_course_massive(index, users, institutions, content_counts):
         p.save()
         p.create_ready_instance()
         prod = p.image; prod.live_datetime = datetime.now(); prod.save();
+        
+        for student in course.student_group.user_set.all():
+            create_additional_page_view_log_entry(additional_page=prod, user=student)
+            if randrange(0,4) > 3:
+                create_additional_page_view_log_entry(additional_page=prod, user=student)
                     
         # Create 1 problem set
         print "      Creating massive course %d of %d >>  Adding content section %d of %d >> Adding 1 problem set\r" % (index,content_counts['num_massive_courses'], i, content_counts['num_sections_per_course'])
@@ -462,7 +477,10 @@ def create_course_massive(index, users, institutions, content_counts):
                 if num_students > 500 and stud_index%500 == 0:
                     print "      Creating massive course %d of %d >>  Adding content section %d of %d >> Adding 1 problem set >> Exercise %d of 4 >> Student activity (%d/%d)\r" % (index,content_counts['num_massive_courses'], i, content_counts['num_sections_per_course'], k, stud_index, num_students)
             
-        
+        for student in course.student_group.user_set.all():
+            create_problemset_view_log_entry(problemset=prod, user=student)
+            if randrange(0,4) > 3:
+                create_problemset_view_log_entry(problemset=prod, user=student)
         
 
 def create_course_nlp(data, users):
@@ -745,47 +763,6 @@ def create_course_crypto(data, users):
     data['due_date']='2012-07-27'
     data['partial_credit_deadline']='2012-08-03'
 
-    # Removing second problem set
-    # KELVIN TODO -- fix create_problem_set so it handles two problem sets referencing the same exercises
-    # duplicate exercise entries screws other things up.
-    #
-    # pset2 = create_problem_set(data, users)
-
-    #Create exercises
-
-    #exercise1_1 = save_exercise(pset1, "xx_P1_Levenshtein_1Q.html", 1, 'crypto#$!Fall2012')
-    
-  #  url = 'http://localhost:8080/nlp/Fall2012/problemsets/P1/manage_exercise'
-  #  payload = {'user': 'professor_1', 'password': 'class2go'}
-
-  #  r = requests.post(url, data=payload)
-  #  print '------' + str(r.text)
-  #  print '++++++' + str(r.status_code)
-    
-    
-#    exercise1_2 = save_exercise(pset1, "P1_Regexp.html", 2)
-#    exercise1_3 = save_exercise(pset1, "P1_Tokenize.html", 3)
-
-#    exercise2_1 = save_exercise(pset2, "P2_Add_one_smoothing.html", 1)
-#    exercise2_2 = save_exercise(pset2, "P2_Joint.html", 2)
-#    exercise2_3 = save_exercise(pset2, "P2_Lexical1.html", 3)
-#    exercise2_4 = save_exercise(pset2, "P2_NER1.html", 4)
-#    exercise2_5 = save_exercise(pset2, "P2_Spelling.html", 5)
-
-    #Create problems
-
-    # save_problem(exercise1_1, 'p1')
-    # save_problem(exercise1_1, 'p2')
-    # save_problem(exercise1_2, 'p1')
-    # save_problem(exercise1_3, 'p1')
-
-    # save_problem(exercise2_1, 'p1')
-    # save_problem(exercise2_1, 'p2')
-    # save_problem(exercise2_2, 'p1')
-    # save_problem(exercise2_3, 'p1')
-    # save_problem(exercise2_4, 'p1')
-    # save_problem(exercise2_5, 'p1')
-
     # Create news events
     titles = [
         'Crypto: Assignment 1 solutions and grades released',
@@ -820,8 +797,23 @@ def create_content_section(course, title, index):
     section.create_ready_instance()
     return section
 
+def create_additional_page_view_log_entry(additional_page, user):        
+        visit_datetime_range_end = int(time.time())
+        visit_datetime_range_start = visit_datetime_range_end - 3*24*3600
+        
+        if randrange(0,2) < 2:
+            visit_log = AdditionalPageVisitLog(course = additional_page.course, additional_page = additional_page, user = user)
+            visit_log.save()
+            visit_log.time_created = datetime.fromtimestamp(randrange(visit_datetime_range_start, visit_datetime_range_end))
+            visit_log.save()
+            if randrange(0,4) > 3:
+                visit_log = AdditionalPageVisitLog(course = additional_page.course, additional_page = additional_page, user = user)
+                visit_log.save()
+                visit_log.time_created = datetime.fromtimestamp(randrange(visit_datetime_range_start, visit_datetime_range_end))
+                visit_log.save()
+    
 def create_video(data, users):
-    # Also creates random progress for each user for each video
+    # Also creates random progress for each user for each video, and random visits to the video page
     video = Video(
         course=data['course'],
         section=data['section'],
@@ -838,7 +830,7 @@ def create_video(data, users):
     )
     video.save()
     video.create_ready_instance()
-
+    
     for user in users['students']:
         video_activity = VideoActivity(
             student=user,
@@ -847,6 +839,23 @@ def create_video(data, users):
             start_seconds = randrange(0,int(video.duration))
         )
         video_activity.save()
+
+def create_video_view_log_entry(video, user):
+    visit_datetime_range_end = int(time.time())
+    visit_datetime_range_start = visit_datetime_range_end - 3*24*3600
+    
+    if randrange(0,2) < 2:
+        visit_log = VideoVisitLog(course = video.course, video = video, user = user)
+        visit_log.save()
+        visit_log.time_created = datetime.fromtimestamp(randrange(visit_datetime_range_start, visit_datetime_range_end))
+        visit_log.save()
+        if randrange(0,4) > 3:
+            visit_log = VideoVisitLog(course = video.course, video = video, user = user)
+            visit_log.save()
+            visit_log.time_created = datetime.fromtimestamp(randrange(visit_datetime_range_start, visit_datetime_range_end))
+            visit_log.save()
+        
+        
 
 def create_news_event(course,title):
     event = NewsEvent(
@@ -892,6 +901,20 @@ def create_problem_set(data, users):
 
     return problem_set
 
+def create_problemset_view_log_entry(problemset, user):
+    visit_datetime_range_end = int(time.time())
+    visit_datetime_range_start = visit_datetime_range_end - 3*24*3600
+    
+    if randrange(0,2) < 2:
+        visit_log = ProblemSetVisitLog(course = problemset.course, problemset = problemset, user = user)
+        visit_log.save()
+        visit_log.time_created = datetime.fromtimestamp(randrange(visit_datetime_range_start, visit_datetime_range_end))
+        visit_log.save()
+        if randrange(0,4) > 3:
+            visit_log = ProblemSetVisitLog(course = problemset.course, problemset = problemset, user = user)
+            visit_log.save()
+            visit_log.time_created = datetime.fromtimestamp(randrange(visit_datetime_range_start, visit_datetime_range_end))
+            visit_log.save()
 
 def save_exercise(problemSet, fileName, number, handle, file):
     ex = Exercise(fileName = fileName)
