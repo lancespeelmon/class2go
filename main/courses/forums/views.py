@@ -35,6 +35,11 @@ def view(request, course_prefix, course_suffix):
         lti_params['roles'] = "Instructor"
     else:
         lti_params['roles'] = "Student"
+        visit_log = ForumVisitLog(
+            course = course,
+            user = request.user
+        )
+        visit_log.save()
 
     lti_params['context_id'] = course.piazza_id
     lti_params['context_label'] = request.common_page_data['course_prefix']
