@@ -50,7 +50,10 @@ class Stageable(models.Model):
     mode = models.TextField(blank=True)
     image = models.ForeignKey('self', null=True, related_name="+")
     live_datetime = models.DateTimeField(editable=True, null=True, blank=True)
-
+    
+    def is_live(self):
+        return self.live_datetime and (self.live_datetime < datetime.now())
+        
     class Meta:
        abstract = True
 
@@ -765,7 +768,7 @@ class Video(TimestampMixin, Stageable, Sortable, Deletable, models.Model):
 
         if errors:
             raise ValidationError(errors)
-
+        
     def __unicode__(self):
         return self.title
 
@@ -1055,7 +1058,7 @@ class ProblemSet(TimestampMixin, Stageable, Sortable, Deletable, models.Model):
 
         if errors:
             raise ValidationError(errors)
-
+        
     def get_progress(self, student):
         submissions_permitted = self.submissions_permitted
         if submissions_permitted == 0:
@@ -1114,6 +1117,13 @@ class Exercise(TimestampMixin, Deletable, models.Model):
     handle = models.CharField(max_length=255, null=True, db_index=True)
     def __unicode__(self):
         return self.fileName
+        
+    def get_slug(self):
+        split_parts = self.fileName.split('/')
+        last_part = split_parts[-1]
+        split_parts = last_part.split('.')
+        return split_parts[0]
+    
     class Meta:
         db_table = u'c2g_exercises'
 
