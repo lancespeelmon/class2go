@@ -819,7 +819,7 @@ class ProblemSetManager(models.Manager):
         else:
             now = datetime.now()
             return self.filter(course=course,is_deleted=0,live_datetime__lt=now).order_by('section','index')
-
+        
     def getBySection(self, section):
         if section.mode == 'draft':
             return self.filter(section=section, is_deleted=0).order_by('index')
@@ -1082,7 +1082,8 @@ class ProblemSet(TimestampMixin, Stageable, Sortable, Deletable, models.Model):
                     break
         return questions_completed
 
-    def get_score(self, student):
+    def get_score(self, student, detailed=False):
+        exercise_scores = {}
         resubmission_penalty = self.resubmission_penalty
         submissions_permitted = self.submissions_permitted
         if submissions_permitted == 0:
@@ -1101,7 +1102,10 @@ class ProblemSet(TimestampMixin, Stageable, Sortable, Deletable, models.Model):
                     break
                 else:
                     exercise_percent -= resubmission_penalty
-        return total_score
+            exercise_scores[psetToEx.exercise.id] = exercise_percent/100.0
+            
+        if detailed: return exercise_scores
+        else: return total_score
 
     class Meta:
         db_table = u'c2g_problem_sets'
