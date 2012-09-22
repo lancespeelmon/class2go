@@ -183,7 +183,8 @@ INSTALLED_APPS = (
                       'storages',
                       'celerytest',
                       'kelvinator',
-                      'db_scripts'
+                      'db_scripts',
+                      'convenience_redirect',
                       )
 if INSTANCE != "prod":
     INSTALLED_APPS += (
@@ -306,11 +307,19 @@ except NameError:
    EMAIL_ALWAYS_ACTUALLY_SEND = False
 
 # Email Settings
+<<<<<<< HEAD
 SERVER_EMAIL = 'class2go-noreply@cs.stanford.edu'
 
 # For Production, or if override is set, actually send email
 if PRODUCTION or EMAIL_ALWAYS_ACTUALLY_SEND:
     DEFAULT_FROM_EMAIL = "class2go-noreply@cs.stanford.edu" #probably change for production
+=======
+SERVER_EMAIL = 'noreply@class.stanford.edu'
+
+# For Production, or if override is set, actually send email
+if PRODUCTION or EMAIL_ALWAYS_ACTUALLY_SEND:
+    DEFAULT_FROM_EMAIL = "noreply@class.stanford.edu" #probably change for production
+>>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = "email-smtp.us-east-1.amazonaws.com"
     EMAIL_PORT = 587
