@@ -55,8 +55,7 @@ def get_quiz_report_data(ready_quiz, course_students):
             is_fa = (ai == 0) or (atts[ai].student != atts[ai-1].student) # is first attempt
             is_la = (ai == atts.count()-1) or (atts[ai].student != atts[ai+1].student) # is last attempt
             
-            if is_fa: # At the start of every student's attempt sequence, set ca_found to False, set fa_index to the current index, set score to 0, and reset temp_tt2fca to 0
-                ca_found = False # Whether or not a correct attempt has been found for this student thus far.
+            if is_fa: # At the start of every student's attempt sequence, set fa_index to the current index, set score to 0, and reset temp_tt2fca to 0
                 fa_index = ai
                 temp_tt2fca = 0
                 score = 0
