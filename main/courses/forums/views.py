@@ -63,7 +63,11 @@ def view(request, course_prefix, course_suffix):
     form = PiazzaAuthForm(initial=signed_request['parameters'])
 
     # Set common_page_data['can_switch_mode'] to false to hide mode switcher on this page.
+<<<<<<< HEAD
     request.common_page_data['can_switch_mode'] = False
+=======
+    common_page_data['can_switch_mode'] = False
+>>>>>>> fb336e164db22393a2427d41f94092f0cc14669a
     
     return render_to_response('forums/piazza.html', {
             'common_page_data': request.common_page_data, 

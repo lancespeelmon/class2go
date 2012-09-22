@@ -64,7 +64,7 @@ def view(request, course_prefix, course_suffix, slug):
             object_id = str(video.id),
         )
         visit_log.save()
-    
+
     video_rec = request.user.videoactivity_set.filter(video=video)
     if video_rec:
         video_rec = video_rec[0]

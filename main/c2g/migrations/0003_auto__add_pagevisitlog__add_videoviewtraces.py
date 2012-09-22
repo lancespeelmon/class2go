@@ -20,10 +20,25 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('c2g', ['PageVisitLog'])
 
+        # Adding model 'VideoViewTraces'
+        db.create_table(u'c2g_video_view_traces', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('time_created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('last_updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
+            ('course', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['c2g.Course'])),
+            ('video', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['c2g.Video'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('trace', self.gf('django.db.models.fields.TextField')(blank=True)),
+        ))
+        db.send_create_signal('c2g', ['VideoViewTraces'])
+
 
     def backwards(self, orm):
         # Deleting model 'PageVisitLog'
         db.delete_table(u'c2g_page_visit_log')
+
+        # Deleting model 'VideoViewTraces'
+        db.delete_table(u'c2g_video_view_traces')
 
 
     models = {
@@ -354,6 +369,16 @@ class Migration(SchemaMigration):
             'mode': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'video': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['c2g.Video']"}),
             'video_time': ('django.db.models.fields.IntegerField', [], {})
+        },
+        'c2g.videoviewtraces': {
+            'Meta': {'object_name': 'VideoViewTraces', 'db_table': "u'c2g_video_view_traces'"},
+            'course': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['c2g.Course']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'}),
+            'time_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'trace': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'video': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['c2g.Video']"})
         },
         'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},

@@ -53,7 +53,6 @@ def aggregate_quiz_attempts_report_data(ready_quiz, ex_att_dl):
                 res_table[atts[ai].student.username][ex.id] = {'student':atts[ai].student, 'attempts': student_attempts, 'mean_attempt_time': str(mean_attempt_time), 'score': "%.2f" % score}
     
     return {'exercises': exercises, 'res_table': res_table}
-    
 
 def get_quiz_attempts_report_data(ready_quiz, order_by='time_created'):
     dl = []
