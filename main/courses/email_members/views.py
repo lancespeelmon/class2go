@@ -6,24 +6,13 @@ from courses.actions import auth_is_course_admin_view_wrapper
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.models import User
-<<<<<<< HEAD
-from django.core.urlresolvers import reverse
-from django.core.mail import send_mail, send_mass_mail, EmailMultiAlternatives, get_connection
-from django.template.loader import render_to_string
-from c2g.models import CourseEmail
-=======
 from django.core.mail import send_mail, send_mass_mail, EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 from c2g.models import CourseEmail, EmailAddr
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
 import courses.email_members.tasks
 import pdb
 import datetime
 from hashlib import md5
-<<<<<<< HEAD
-
-=======
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
 
 
 def optout(request,code):
@@ -78,10 +67,7 @@ def email_members(request, course_prefix, course_suffix):
             courses.email_members.tasks.delegate_emails.delay(email.hash,
                                                               recipient_qset.count(),
                                                               request.common_page_data['course'].title,
-<<<<<<< HEAD
-=======
                                                               request.common_page_data['course'].handle,
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
                                                               request.build_absolute_uri(reverse('courses.views.main', args=[course_prefix, course_suffix])),
                                                               recipient_qset.query
                                                              )

@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, render_to_response, redirect, HttpResponseRedirect
 from django.template import Context, loader
-from c2g.models import Course, Video, VideoToExercise, Exercise
+from c2g.models import Course, Video, VideoToExercise, Exercise, PageVisitLog
 
 from c2g.models import Course, Video, VideoActivity, ProblemActivity
 from courses.common_page_data import get_common_page_data
@@ -55,19 +55,16 @@ def view(request, course_prefix, course_suffix, slug):
         video = Video.objects.get(course=common_page_data['course'], slug=slug)
     except Video.DoesNotExist:
         raise Http404
-<<<<<<< HEAD
     
     if not common_page_data['is_course_admin']:
-        visit_log = VideoVisitLog(
-            course = course,
-            video = video,
-            user = request.user
+        visit_log = PageVisitLog(
+            course = common_page_data['ready_course'],
+            user = request.user,
+            page_type= 'video',
+            object_id = str(video.id),
         )
         visit_log.save()
-        
-=======
-
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
+    
     video_rec = request.user.videoactivity_set.filter(video=video)
     if video_rec:
         video_rec = video_rec[0]

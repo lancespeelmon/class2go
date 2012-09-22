@@ -42,10 +42,11 @@ def main(request, course_prefix, course_suffix, slug):
         raise Http404
     
     if not common_page_data['is_course_admin']:
-        visit_log = AdditionalPageVisitLog(
-            course = course,
-            additional_page = page,
-            user = request.user
+        visit_log = PageVisitLog(
+            course = common_page_data['ready_course'],
+            user = request.user,
+            page_type = 'additional_page',
+            object_id = str(page.id),
         )
         visit_log.save()
         

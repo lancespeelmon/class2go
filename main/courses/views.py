@@ -15,10 +15,7 @@ from courses.forms import *
 from courses.actions import auth_view_wrapper
 
 from urlparse import urlparse
-<<<<<<< HEAD
-=======
 import settings
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
 
 def index(item): # define a index function for list items
  return item[1]

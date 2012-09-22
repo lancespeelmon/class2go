@@ -5,38 +5,24 @@ from time import sleep
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
-<<<<<<< HEAD
-from c2g.models import Course, CourseEmail
-=======
 from c2g.models import Course, CourseEmail, ListEmail
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.sites.models import Site
 from collections import deque
 from smtplib import SMTPException
 from celery.task import current
-<<<<<<< HEAD
-=======
 from django.contrib.sites.models import Site
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
 
 import random
 import math
 import time
-<<<<<<< HEAD
-=======
 import re
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
 import logging
 logger = logging.getLogger(__name__)
 
 EMAILS_PER_WORKER=getattr(settings, 'EMAILS_PER_WORKER', 10)
 
-<<<<<<< HEAD
-@task()
-def delegate_emails(hash_for_msg, total_num_emails, course_title, course_url, query ):
-=======
 
 
 
@@ -119,7 +105,6 @@ def email_list(msg_hash, addr_list, throttle=False):
 
 @task()
 def delegate_emails(hash_for_msg, total_num_emails, course_title, course_handle, course_url, query ):
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
     '''Delegates emails by spinning up appropriate number of sender workers
        Tries to minimize DB accesses performed by each worker.
        Especially passing query forming a queryset, which is ok practice according
@@ -135,21 +120,13 @@ def delegate_emails(hash_for_msg, total_num_emails, course_title, course_handle,
 
     for i in range(num_workers):
         to_list=recipient_list[i*chunk:i*chunk+chunk]
-<<<<<<< HEAD
-        course_email_with_celery.delay(hash_for_msg, to_list, False, course_title, course_url)
-=======
         course_email_with_celery.delay(hash_for_msg, to_list, False, course_title, course_handle, course_url)
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
     return num_workers
 
 
 
 @task(default_retry_delay=15, max_retries=5)
-<<<<<<< HEAD
-def course_email_with_celery(hash_for_msg, to_list,  throttle=False, course_title='', course_url=''):
-=======
 def course_email_with_celery(hash_for_msg, to_list,  throttle=False, course_title='', course_handle='', course_url=''):
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
     """
         Takes a subject and an html formatted email and sends it from sender to all addresses
         in the to_list, with each recipient being the only "to".  Emails are sent multipart, in both
@@ -163,14 +140,10 @@ def course_email_with_celery(hash_for_msg, to_list,  throttle=False, course_titl
     
     p = Popen(['lynx','-stdin','-dump'], stdin=PIPE, stdout=PIPE)
     (plaintext, err_from_stderr) = p.communicate(input=msg.html_message) #use lynx to get plaintext
-<<<<<<< HEAD
-    from_addr = course_title + ' Staff <class2go-noreply@cs.stanford.edu>'
-=======
     staff_email = 'noreply@class.stanford.edu'
     if course_handle:
         staff_email = re.sub(r'\--', r'-',course_handle) + '-staff@class.stanford.edu'
     from_addr = course_title + " Staff <%s>" % staff_email
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
 
     if err_from_stderr:
         logger.info(err_from_stderr)
@@ -222,11 +195,7 @@ def course_email_with_celery(hash_for_msg, to_list,  throttle=False, course_titl
         return num_sent
 
     except SMTPException as exc:
-<<<<<<< HEAD
-        raise course_email_with_celery.retry(arg=[hash_for_msg, to_list, current.request.retries>0, course_title,
-=======
         raise course_email_with_celery.retry(arg=[hash_for_msg, to_list, current.request.retries>0, course_title, course_handle,
->>>>>>> 9140de4a8c0fadb62bdb6c14c4f6429c28047a25
                                                   course_url], exc=exc, countdown=(2 ** current.request.retries)*15)
 
 
