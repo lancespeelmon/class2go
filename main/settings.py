@@ -260,6 +260,7 @@ LOGGING = {
             'backupCount': 3,
         },
         'console':{
+            # consider "INFO" for better manage.py interactive commands
             'level':'WARNING',
             'class':'logging.StreamHandler',
             'formatter': 'simple'
