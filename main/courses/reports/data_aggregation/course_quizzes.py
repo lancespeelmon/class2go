@@ -13,11 +13,9 @@ def get_course_quizzes_report_data(ready_course):
     course_students = ready_course.student_group.user_set.all()
     
     for ready_quiz in ProblemSet.objects.getByCourse(course=ready_course):
-        print ready_quiz.title
         all_quizzes_data.append(get_quiz_report_data(ready_quiz, course_students))
     
     for ready_quiz in Video.objects.getByCourse(course=ready_course):
-        print ready_quiz.title
         all_quizzes_data.append(get_quiz_report_data(ready_quiz, course_students))
 
     return all_quizzes_data
@@ -61,7 +59,7 @@ def get_quiz_report_data(ready_quiz, course_students):
                 score = 0
                 if not atts[ai].complete: icfa_contents[ex.id].append(atts[ai].attempt_content) # If first attempt is not correct, register its content to fa_content
                 
-            att_number = ai - fa_index # The number of the att in the student's att seq
+            att_number = ai - fa_index + 1 # The number of the att in the student's att seq
             temp_tt2fca += atts[ai].time_taken
             attempt_times[ex.id].append(atts[ai].time_taken)
             
@@ -77,6 +75,7 @@ def get_quiz_report_data(ready_quiz, course_students):
                     if att_number > submissions_permitted: score = 0
                     else: score = 100 - att_number * resubmission_penalty
                     if score < 0: score = 0
+                    score = score/100.0
                     
             
             if is_la: # Before leaving to the next student, register the total number of attempts consumed, and the student score if the quiz is a summ. ps.
@@ -103,9 +102,13 @@ def get_quiz_report_data(ready_quiz, course_students):
         ex_data['num_attempts'] = att_count
         ex_data['num_unique_attempts'] = len(num_attempts[ex.id])
         
+        if assessment_type == 'summative':
+            ex_data['mean_score'] = sum(scores[ex.id].values())/ex_data['num_unique_attempts']
+            ex_data['max_score'] = max(scores[ex.id].values())
+        
         ex_data['num_students_with_correct_attempt'] = len(total_time_to_fca[ex.id])
         ex_data['mean_time_per_attempt'] = sum(attempt_times[ex.id])/len(attempt_times[ex.id])
-        
+            
         ex_data['num_students_with_correct_first_attempt'] = fca_number[ex.id].count(1)
         ex_data['num_students_with_correct_second_attempt'] = fca_number[ex.id].count(2)
         ex_data['num_students_with_correct_third_attempt'] = fca_number[ex.id].count(3)

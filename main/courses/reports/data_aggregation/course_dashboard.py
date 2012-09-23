@@ -58,52 +58,62 @@ def get_course_dashboard_report_data(draft_course):
     now_minus_one_week = dd['now']-timedelta(days=7)
     
     # Get visits for additional pages, problem sets, videos, and the forum
-    ap_visits = AdditionalPageVisitLog.objects.filter(course=ready_course)
-    ps_visits = ProblemSetVisitLog.objects.filter(course=ready_course)
-    vd_visits = VideoVisitLog.objects.filter(course=ready_course)
-    fm_visits = ForumVisitLog.objects.filter(course=ready_course)
+    ap_visits = PageVisitLog.objects.filter(course=ready_course, page_type='additional_page')
+    ps_visits = PageVisitLog.objects.filter(course=ready_course, page_type='problemset')
+    vd_visits = PageVisitLog.objects.filter(course=ready_course, page_type='video')
+    fm_visits = PageVisitLog.objects.filter(course=ready_course, page_type='forum')
+    
+    dd['ps']['aggr_visits'] = {'total': 0, 'unique': 0}
+    dd['ap']['aggr_visits'] = {'total': 0, 'unique': 0}
+    dd['vd']['aggr_visits'] = {'total': 0, 'unique': 0}
     
     for item in dd['ap']['list']:
         item['visits'] = {
             'total':{
-                'past_24_hours': ap_visits.filter(additional_page=item['object'], time_created__gte=now_minus_one_day).count(),
-                'past_week': ap_visits.filter(additional_page=item['object'], time_created__gte=now_minus_one_week).count(),
-                'all_time': ap_visits.filter(additional_page=item['object']).count(),
+                'past_24_hours': ap_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_day).count(),
+                'past_week': ap_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_week).count(),
+                'all_time': ap_visits.filter(object_id=str(item['object'].id)).count(),
             },
             'unique':{
-                'past_24_hours': qs_unique_by_user(ap_visits.filter(additional_page=item['object'], time_created__gte=now_minus_one_day)).count(),
-                'past_week': qs_unique_by_user(ap_visits.filter(additional_page=item['object'], time_created__gte=now_minus_one_week)).count(),
-                'all_time': qs_unique_by_user(ap_visits.filter(additional_page=item['object'])).count(),
+                'past_24_hours': qs_unique_by_user(ap_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_day)).count(),
+                'past_week': qs_unique_by_user(ap_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_week)).count(),
+                'all_time': qs_unique_by_user(ap_visits.filter(object_id=str(item['object'].id))).count(),
             }
         }
+        dd['ap']['aggr_visits']['total'] += item['visits']['total']['all_time']
+        dd['ap']['aggr_visits']['unique'] += item['visits']['unique']['all_time']
         
     for item in dd['ps']['list']:
         item['visits'] = {
             'total':{
-                'past_24_hours': ps_visits.filter(problemset=item['object'], time_created__gte=now_minus_one_day).count(),
-                'past_week': ps_visits.filter(problemset=item['object'], time_created__gte=now_minus_one_week).count(),
-                'all_time': ps_visits.filter(problemset=item['object']).count(),
+                'past_24_hours': ps_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_day).count(),
+                'past_week': ps_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_week).count(),
+                'all_time': ps_visits.filter(object_id=str(item['object'].id)).count(),
             },
             'unique':{
-                'past_24_hours': qs_unique_by_user(ps_visits.filter(problemset=item['object'], time_created__gte=now_minus_one_day)).count(),
-                'past_week': qs_unique_by_user(ps_visits.filter(problemset=item['object'], time_created__gte=now_minus_one_week)).count(),
-                'all_time': qs_unique_by_user(ps_visits.filter(problemset=item['object'])).count(),
+                'past_24_hours': qs_unique_by_user(ps_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_day)).count(),
+                'past_week': qs_unique_by_user(ps_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_week)).count(),
+                'all_time': qs_unique_by_user(ps_visits.filter(object_id=str(item['object'].id))).count(),
             }
         }
+        dd['ps']['aggr_visits']['total'] += item['visits']['total']['all_time']
+        dd['ps']['aggr_visits']['unique'] += item['visits']['unique']['all_time']
         
     for item in dd['vd']['list']:
         item['visits'] = {
             'total':{
-                'past_24_hours': vd_visits.filter(video=item['object'], time_created__gte=now_minus_one_day).count(),
-                'past_week': vd_visits.filter(video=item['object'], time_created__gte=now_minus_one_week).count(),
-                'all_time': vd_visits.filter(video=item['object']).count(),
+                'past_24_hours': vd_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_day).count(),
+                'past_week': vd_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_week).count(),
+                'all_time': vd_visits.filter(object_id=str(item['object'].id)).count(),
             },
             'unique':{
-                'past_24_hours': qs_unique_by_user(vd_visits.filter(video=item['object'], time_created__gte=now_minus_one_day)).count(),
-                'past_week': qs_unique_by_user(vd_visits.filter(video=item['object'], time_created__gte=now_minus_one_week)).count(),
-                'all_time': qs_unique_by_user(vd_visits.filter(video=item['object'])).count(),
+                'past_24_hours': qs_unique_by_user(vd_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_day)).count(),
+                'past_week': qs_unique_by_user(vd_visits.filter(object_id=str(item['object'].id), time_created__gte=now_minus_one_week)).count(),
+                'all_time': qs_unique_by_user(vd_visits.filter(object_id=str(item['object'].id))).count(),
             }
         }
+        dd['vd']['aggr_visits']['total'] += item['visits']['total']['all_time']
+        dd['vd']['aggr_visits']['unique'] += item['visits']['unique']['all_time']
         
     dd['fm']['visits'] = {
         'total':{

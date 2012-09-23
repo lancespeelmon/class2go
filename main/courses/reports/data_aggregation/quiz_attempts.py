@@ -7,6 +7,7 @@ from courses.reports.data_aggregation.utility_functions import *
 
 def aggregate_quiz_attempts_report_data(ready_quiz, ex_att_dl):
     res_table = {}
+    totals = {}
     
     exercises = []
     for ex_att_d in ex_att_dl:
@@ -27,7 +28,7 @@ def aggregate_quiz_attempts_report_data(ready_quiz, ex_att_dl):
                 neglect_next_attempts = False
             
             if not neglect_next_attempts:
-                att_number = ai - fa_index # The number of the att in the student's att seq
+                att_number = ai - fa_index + 1 # The number of the att in the student's att seq
                 student_attempts.append(atts[ai].attempt_content)
                 temp_tt2fca += atts[ai].time_taken
             
@@ -46,13 +47,17 @@ def aggregate_quiz_attempts_report_data(ready_quiz, ex_att_dl):
                 score = 1.0 - (resubmission_penalty/100.0)*att_number
                 if (score < 0) or (att_number > submissions_permitted): score = 0
                 
-                mean_attempt_time = int(temp_tt2fca/(att_number+1))
+                mean_attempt_time = int(temp_tt2fca/(att_number))
                 
                 # Write the data to the student's row
                 if not (atts[ai].student.username in res_table): res_table[atts[ai].student.username] = {}
                 res_table[atts[ai].student.username][ex.id] = {'student':atts[ai].student, 'attempts': student_attempts, 'mean_attempt_time': str(mean_attempt_time), 'score': "%.2f" % score}
+                
+                # Add exercise score to the totals
+                if not (atts[ai].student.username in totals): totals[atts[ai].student.username] = 0
+                totals[atts[ai].student.username] += score
     
-    return {'exercises': exercises, 'res_table': res_table}
+    return {'exercises': exercises, 'res_table': res_table, 'totals': totals}
 
 def get_quiz_attempts_report_data(ready_quiz, order_by='time_created'):
     dl = []
